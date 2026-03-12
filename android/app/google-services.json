@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "510285306261",
+    "project_id": "campustrust-umu-v3-1fb07",
+    "storage_bucket": "campustrust-umu-v3-1fb07.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:510285306261:android:499fb85e1b990d143b7e9c",
+        "android_client_info": {
+          "package_name": "com.umu.campustrust"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4dtrKGswRVKQckU7HNZOxKwQv-rcw0kM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:510285306261:android:53a97241950769ef3b7e9c",
+        "android_client_info": {
+          "package_name": "com.umu.v3.campustrust"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4dtrKGswRVKQckU7HNZOxKwQv-rcw0kM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

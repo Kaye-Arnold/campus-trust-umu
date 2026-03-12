@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users — owner write, authenticated read
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+                            && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // Providers — public read; only rating fields updatable by auth users
+    match /providers/{providerId} {
+      allow read: if true;
+      allow update: if request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['ratingAverage', 'ratingCount']);
+      allow create, delete: if false;
+    }
+
+    // Reviews — public read; authenticated create only; immutable after submit
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.ratingValue >= 1
+        && request.resource.data.ratingValue <= 5;
+      allow update, delete: if false;
+    }
+  }
+}
