@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,6 +29,78 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  void _showProfileMenu(BuildContext context, AuthProvider auth) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: AppColors.primaryMuted,
+                backgroundImage: auth.user?.photoURL != null
+                    ? NetworkImage(auth.user!.photoURL!)
+                    : null,
+                child: auth.user?.photoURL == null
+                    ? const Icon(Icons.person, color: AppColors.primary, size: 30)
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                auth.user?.displayName ?? 'CampusTrust User',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                auth.user?.email ?? '',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    auth.signOut();
+                    Navigator.pop(context); // close bottom sheet
+                  },
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  label: Text(
+                    'Sign Out',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _openCategory(String key, String label) => Navigator.push(
         context,
         MaterialPageRoute(
@@ -50,10 +124,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ── UPDATED: Production-ready URL Launcher ─────────────────────────────────
   Future<void> _applyToBeListed() async {
-    final uri = Uri.parse('https://forms.gle/campustrust-apply');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final uri = Uri.parse('https://forms.gle/kVWovJS6eyf4soqm7');
+    
+    try {
+      // Launch IN-APP so they don't lose context of CampusTrust
+      await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+      
+    } catch (e) {
+      // If the device fails to open the link, catch it gracefully
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Could not open the form. Please check your internet connection.',
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -67,15 +158,41 @@ class _HomeScreenState extends State<HomeScreen> {
             // ── Header ──────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-              child: Center(
-                child: Text(
-                  'CampusTrust',
-                  style: GoogleFonts.poppins(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'CampusTrust',
+                    style: GoogleFonts.poppins(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary,
+                    ),
                   ),
-                ),
+                  
+                  // User Profile / Sign Out Button
+                  Consumer<AuthProvider>(
+                    builder: (context, auth, child) {
+                      // If not logged in, show nothing (Lazy Auth)
+                      if (!auth.isAuthenticated) return const SizedBox.shrink();
+
+                      final user = auth.user;
+                      return GestureDetector(
+                        onTap: () => _showProfileMenu(context, auth),
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: AppColors.primaryMuted,
+                          backgroundImage: user?.photoURL != null
+                              ? NetworkImage(user!.photoURL!)
+                              : null,
+                          child: user?.photoURL == null
+                              ? const Icon(Icons.person, color: AppColors.primary, size: 20)
+                              : null,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
 

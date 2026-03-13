@@ -26,14 +26,24 @@ class FirestoreService {
   }
 
   Future<List<ProviderModel>> searchProviders(String query) async {
-    if (query.trim().isEmpty) return [];
-    final snap = await _db
-        .collection('providers')
-        .orderBy('name')
-        .startAt([query])
-        .endAt(['$query\uf8ff'])
-        .get();
-    return snap.docs.map(ProviderModel.fromDoc).toList();
+    // 1. Clean the user's input so it matches the lowercase array in Firestore
+    final searchTerm = query.toLowerCase().trim();
+    if (searchTerm.isEmpty) return [];
+
+    try {
+      // 2. Query Firestore natively using the N-Gram array
+      final snap = await _db
+          .collection('providers')
+          .where('searchKeywords', arrayContains: searchTerm)
+          .limit(20) // Limits reads to protect your Firebase free tier
+          .get();
+
+      // 3. Map the documents back to your ProviderModel
+      return snap.docs.map(ProviderModel.fromDoc).toList();
+    } catch (e) {
+      print('Search error: $e');
+      return [];
+    }
   }
 
   // ── Reviews ────────────────────────────────────────────────────────────────
