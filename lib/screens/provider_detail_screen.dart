@@ -55,11 +55,24 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   }
 
   Future<void> _whatsapp() async {
-    final number =
-        _provider.whatsapp.replaceAll(RegExp(r'[^0-9]'), '');
+    // 1. Remove any non-numeric characters
+    String number = _provider.whatsapp.replaceAll(RegExp(r'[^0-9]'), '');
+    
+    // 2. Format for Uganda (+256) if the number starts with '0'
+    if (number.startsWith('0')) {
+      number = '256${number.substring(1)}';
+    }
+
     final uri = Uri.parse('https://wa.me/$number');
+    
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch WhatsApp')),
+        );
+      }
     }
   }
 
