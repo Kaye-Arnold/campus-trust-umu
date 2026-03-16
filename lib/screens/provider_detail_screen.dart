@@ -34,18 +34,39 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
 
   Future<void> _loadReviews() async {
     setState(() => _loadingReviews = true);
-    final list = await _fs.getReviews(_provider.id);
-    if (mounted) setState(() {
-      _reviews = list;
-      _loadingReviews = false;
-    });
+    
+    try {
+      final list = await _fs.getReviews(_provider.id);
+      if (mounted) {
+        setState(() {
+          _reviews = list;
+        });
+      }
+    } catch (e) {
+      // If it crashes, it will print exactly why to your debug console
+      print('🔥 ERROR LOADING REVIEWS: $e'); 
+    } finally {
+      // This ALWAYS runs, guaranteeing the spinner stops
+      if (mounted) {
+        setState(() => _loadingReviews = false); 
+      }
+    }
   }
 
   /// Re-fetches the single provider document so the rating UI reflects the
   /// new review immediately. Costs 1 Firestore read, not N.
   Future<void> _refreshProvider() async {
+    // 1. Give Firestore and the Bottom Sheet closing animation a tiny 
+    // buffer to finish completely. 500ms is usually perfect.
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // 2. Now fetch the updated data
     final updated = await _fs.getProviderById(_provider.id);
-    if (mounted && updated != null) setState(() => _provider = updated);
+    if (mounted && updated != null) {
+      setState(() => _provider = updated);
+    }
+    
+    // 3. Load the fresh reviews
     await _loadReviews();
   }
 

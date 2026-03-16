@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ── UPDATED: Production-ready URL Launcher ─────────────────────────────────
   Future<void> _applyToBeListed() async {
-    final uri = Uri.parse('https://forms.gle/zF1ZLCxQfXdscR6z7');
+    final uri = Uri.parse('https://tally.so/r/5B2K8v');
     
     try {
       // Launch IN-APP so they don't lose context of CampusTrust

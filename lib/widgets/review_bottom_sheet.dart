@@ -34,9 +34,18 @@ class _ReviewBottomSheetState extends State<ReviewBottomSheet> {
   }
 
   Future<void> _signInWithGoogle() async {
+    // 1. Check rating BEFORE making them sign in
+    if (_rating == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a star rating first.')),
+      );
+      return;
+    }
+
     final auth = context.read<AuthProvider>();
     final ok = await auth.signInWithGoogle();
     if (!mounted) return;
+    
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -44,8 +53,11 @@ class _ReviewBottomSheetState extends State<ReviewBottomSheet> {
           backgroundColor: Colors.red,
         ),
       );
+      return; // Stop here if sign-in failed
     }
-    // Sheet rebuilds automatically via Consumer — no navigation needed.
+
+    // 2. If sign-in was successful, automatically submit the review!
+    await _submitReview();
   }
 
   Future<void> _submitReview() async {
@@ -56,7 +68,16 @@ class _ReviewBottomSheetState extends State<ReviewBottomSheet> {
       return;
     }
     final user = context.read<AuthProvider>().user;
-    if (user == null) return;
+if (user == null) {
+  print('🚨 SILENT FAILURE CAUGHT: AuthProvider user is null!');
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Finalizing sign-in... Please tap Submit again.'),
+      backgroundColor: Colors.orange,
+    ),
+  );
+  return;
+}
 
     setState(() => _submitting = true);
     try {
