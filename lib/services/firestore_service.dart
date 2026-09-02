@@ -40,9 +40,10 @@ class FirestoreService {
 
       // 3. Map the documents back to your ProviderModel
       return snap.docs.map(ProviderModel.fromDoc).toList();
-    } catch (e) {
-      print('Search error: $e');
-      return [];
+    } catch (_) {
+      // Preserve the distinction between a real empty result and a failed
+      // request so the UI can offer a retry instead of misleading the user.
+      rethrow;
     }
   }
 

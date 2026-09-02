@@ -1,1 +1,25 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"campustrust-umu-v3-1fb07","appId":"1:510285306261:android:53a97241950769ef3b7e9c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"campustrust-umu-v3-1fb07","configurations":{"android":"1:510285306261:android:53a97241950769ef3b7e9c"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "campustrust-umu-v3-1fb07",
+          "appId": "1:510285306261:android:53a97241950769ef3b7e9c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "campustrust-umu-v3-1fb07",
+          "configurations": {
+            "android": "1:510285306261:android:53a97241950769ef3b7e9c"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

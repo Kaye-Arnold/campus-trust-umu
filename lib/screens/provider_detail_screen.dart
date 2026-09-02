@@ -8,6 +8,7 @@ import '../models/review_model.dart';
 import '../services/firestore_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/review_bottom_sheet.dart';
+import '../utils/contact_utils.dart';
 
 class ProviderDetailScreen extends StatefulWidget {
   final ProviderModel provider;
@@ -85,30 +86,32 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   }
 
   Future<void> _call() async {
-    final uri = Uri(scheme: 'tel', path: _provider.phone);
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    final number = normalizeUgandaPhone(_provider.phone);
+    if (number == null) {
+      _showContactError();
+      return;
+    }
+    final uri = Uri(scheme: 'tel', path: '+$number');
+    if (!await launchUrl(uri)) _showContactError();
   }
 
   Future<void> _whatsapp() async {
-    // 1. Remove any non-numeric characters
-    String number = _provider.whatsapp.replaceAll(RegExp(r'[^0-9]'), '');
-    
-    // 2. Format for Uganda (+256) if the number starts with '0'
-    if (number.startsWith('0')) {
-      number = '256${number.substring(1)}';
+    final number = normalizeUgandaPhone(_provider.whatsapp);
+    if (number == null) {
+      _showContactError();
+      return;
     }
-
     final uri = Uri.parse('https://wa.me/$number');
-    
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch WhatsApp')),
-        );
-      }
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      _showContactError();
     }
+  }
+
+  void _showContactError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('This provider has an invalid contact number.')),
+    );
   }
 
   void _openReviewSheet() {
@@ -163,7 +166,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                   const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: Column(
                 children: [
-                  // Avatar + verified badge
+                  // Avatar + directory listing marker
                   Stack(
                     children: [
                       Container(
@@ -205,8 +208,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                             border:
                                 Border.all(color: Colors.black, width: 2),
                           ),
-                          child: const Icon(Icons.verified,
-                              color: Colors.white, size: 13),
+                          child: const Icon(Icons.check,
+                              color: Colors.white, size: 15),
                         ),
                       ),
                     ],
@@ -233,7 +236,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Text(
-                      'Verified ${_formatCat(_provider.category)}',
+                      'Listed ${_formatCat(_provider.category)}',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

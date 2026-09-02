@@ -247,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: GoogleFonts.poppins(
                           color: AppColors.textPrimary, fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Search for verified campus services...',
+                        hintText: 'Search listed campus services...',
                         prefixIcon:
                             const Icon(Icons.search, size: 20),
                         suffixIcon: IconButton(

@@ -52,6 +52,12 @@ Do not put server credentials in the app. Firebase client configuration is inten
 - Test the install card in Chromium, Safari on iOS (Share → Add to Home Screen), and a browser without install support.
 - Use DevTools offline mode to confirm the app shell loads. Firebase-backed content requires a prior cache and may be unavailable offline; the UI must not claim a review was saved until Firestore confirms it.
 
+## Trust, safety, and privacy
+
+The product uses **Listed provider** language. A listing is not a guarantee of identity, safety, price, availability, or service quality. The directory owner must review provider applications, reconfirm contact details, pause unsafe listings, and respond to review complaints. See [`docs/TRUST_MODEL.md`](docs/TRUST_MODEL.md) for the minimum operating process. Do not launch publicly without a named operator and a support/reporting channel.
+
+The app currently collects Google display name/email for authenticated reviews and publishes provider contact details and review authors publicly. Do not collect application documents in this Flutter client; the external Tally workflow must have its own access and retention policy.
+
 ## Security and data notes
 
 Provider documents are publicly readable but cannot be written from the client. Reviews can only be created by an authenticated user, must belong to that user, have a 1–5 integer rating, and are immutable. Existing provider/review data is not destructively migrated. Before operating on production data, export a Firestore backup and deploy rule changes separately from any aggregate function.
