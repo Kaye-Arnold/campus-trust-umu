@@ -1,28 +1,47 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
 
-    // Users — owner write, authenticated read
+    // Private account metadata. Roles are deliberately not client-writable.
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth != null
-                            && request.auth.uid == userId;
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'email'])
+        && request.resource.data.uid == userId
+        && request.resource.data.name is string
+        && request.resource.data.email is string;
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'email'])
+        && request.resource.data.uid == resource.data.uid;
       allow delete: if false;
     }
 
-    // Provider records are curated server-side. Never trust a client to write
-    // rating aggregates: those values are a community trust signal.
+    // Provider records are curated server-side. Rating aggregates are a trust
+    // signal and cannot be forged by an authenticated client.
     match /providers/{providerId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Reviews — public read; authenticated create only; immutable after submit
+    // Reviews are public, immutable, authenticated and one-per-user/provider.
+    // A trusted backend can moderate or aggregate them without weakening this
+    // client-facing boundary.
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if request.auth != null
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'providerId', 'userId', 'authorName', 'ratingValue', 'comment', 'timestamp'
+        ])
         && request.resource.data.userId == request.auth.uid
-        && request.resource.data.providerId is string
+        && reviewId == request.auth.uid + '_' + request.resource.data.providerId
+        && !exists(/databases/$(database)/documents/reviews/$(reviewId))
+        && exists(/databases/$(database)/documents/providers/$(request.resource.data.providerId))
+        && request.resource.data.authorName == request.auth.token.name
         && request.resource.data.ratingValue is int
         && request.resource.data.ratingValue >= 1
         && request.resource.data.ratingValue <= 5

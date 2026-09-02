@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -106,9 +107,12 @@ if (user == null) {
     } catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
+      final alreadyReviewed = e is FirebaseException && e.code == 'already-exists';
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to submit. Please try again.'),
+        SnackBar(
+          content: Text(alreadyReviewed
+              ? 'You have already reviewed this provider.'
+              : 'Review was not saved. Check your connection and try again.'),
           backgroundColor: Colors.red,
         ),
       );

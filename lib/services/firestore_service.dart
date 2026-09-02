@@ -70,6 +70,9 @@ class FirestoreService {
     if (review.comment.length > 1000) {
       throw ArgumentError('Comment is too long.');
     }
-    await _db.collection('reviews').add(review.toMap());
+    // A deterministic id enforces one review per user/provider in the rules.
+    // This also makes retries idempotent instead of creating duplicate reviews.
+    final reviewId = '${review.userId}_${review.providerId}';
+    await _db.collection('reviews').doc(reviewId).create(review.toMap());
   }
 }

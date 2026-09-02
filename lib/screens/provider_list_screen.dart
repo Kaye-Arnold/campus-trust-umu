@@ -29,9 +29,18 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
   @override
   void initState() {
     super.initState();
-    _future = widget.searchQuery != null
+    _load();
+  }
+
+  void _load() {
+    final request = widget.searchQuery != null
         ? _fs.searchProviders(widget.searchQuery!)
         : _fs.getProvidersByCategory(widget.category);
+    if (mounted) {
+      setState(() => _future = request);
+    } else {
+      _future = request;
+    }
   }
 
   @override
@@ -52,9 +61,17 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
           }
           if (snap.hasError) {
             return Center(
-              child: Text(
-                'Could not load providers.',
-                style: GoogleFonts.poppins(color: AppColors.textSecondary),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.cloud_off, size: 48, color: AppColors.textMuted),
+                  const SizedBox(height: 12),
+                  Text('We could not load providers.', style: GoogleFonts.poppins(color: AppColors.textSecondary)),
+                  const SizedBox(height: 6),
+                  Text('Check your connection and try again.', style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 12)),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(onPressed: _load, icon: const Icon(Icons.refresh), label: const Text('Try again')),
+                ]),
               ),
             );
           }

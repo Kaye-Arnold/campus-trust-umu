@@ -3,7 +3,10 @@
   publish = "build/web"
 
 [build.environment]
-  NIXPACKS_FLUTTER_VERSION = "3.24.0"
+  FLUTTER_VERSION = "3.24.0"
+
+[[plugins]]
+  package = "netlify-plugin-flutter"
 
 # Flutter client-side routes must resolve to the app shell.
 [[redirects]]

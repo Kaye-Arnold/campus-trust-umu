@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "Netlify build support for CampusTrust Flutter Web",
+  "devDependencies": {
+    "netlify-plugin-flutter": "^1.0.0"
+  }
+}

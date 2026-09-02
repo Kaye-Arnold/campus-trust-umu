@@ -27,6 +27,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _service.signInWithGoogle();
+      // Do not wait for the authStateChanges stream before protected actions.
+      _user = _service.currentUser;
       _loading = false;
       notifyListeners();
       return result != null;
