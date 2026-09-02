@@ -1,0 +1,30 @@
+[build]
+  command = "flutter build web --release --web-renderer canvaskit"
+  publish = "build/web"
+
+[build.environment]
+  NIXPACKS_FLUTTER_VERSION = "3.24.0"
+
+# Flutter client-side routes must resolve to the app shell.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public,max-age=3600"
+
+[[headers]]
+  for = "/flutter_service_worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

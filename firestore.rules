@@ -10,13 +10,11 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Providers — public read; only rating fields updatable by auth users
+    // Provider records are curated server-side. Never trust a client to write
+    // rating aggregates: those values are a community trust signal.
     match /providers/{providerId} {
       allow read: if true;
-      allow update: if request.auth != null
-        && request.resource.data.diff(resource.data).affectedKeys()
-           .hasOnly(['ratingAverage', 'ratingCount']);
-      allow create, delete: if false;
+      allow write: if false;
     }
 
     // Reviews — public read; authenticated create only; immutable after submit
@@ -24,8 +22,12 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null
         && request.resource.data.userId == request.auth.uid
+        && request.resource.data.providerId is string
+        && request.resource.data.ratingValue is int
         && request.resource.data.ratingValue >= 1
-        && request.resource.data.ratingValue <= 5;
+        && request.resource.data.ratingValue <= 5
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() <= 1000;
       allow update, delete: if false;
     }
   }

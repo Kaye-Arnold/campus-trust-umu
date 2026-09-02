@@ -59,30 +59,17 @@ class FirestoreService {
     return snap.docs.map(ReviewModel.fromDoc).toList();
   }
 
-  /// Atomically writes the review document and updates the provider's
-  /// ratingAverage + ratingCount in a single Firestore transaction.
+  /// Creates a review. Rating aggregates are intentionally not client-written:
+  /// allowing clients to update provider ratings would let a malicious user
+  /// forge the trust signal. A trusted Cloud Function can aggregate reviews in
+  /// production; the detail screen calculates the current view from reviews.
   Future<void> submitReview(ReviewModel review) async {
-    final providerRef = _db.collection('providers').doc(review.providerId);
-    final reviewRef   = _db.collection('reviews').doc(); // auto-ID
-
-    await _db.runTransaction((tx) async {
-      final provSnap = await tx.get(providerRef);
-      if (!provSnap.exists) throw Exception('Provider not found.');
-
-      final currentCount =
-          (provSnap.data()?['ratingCount'] ?? 0).toInt();
-      final currentAvg =
-          (provSnap.data()?['ratingAverage'] ?? 0.0).toDouble();
-
-      final newCount = currentCount + 1;
-      final newAvg =
-          ((currentAvg * currentCount) + review.ratingValue) / newCount;
-
-      tx.set(reviewRef, review.toMap());
-      tx.update(providerRef, {
-        'ratingCount':   newCount,
-        'ratingAverage': double.parse(newAvg.toStringAsFixed(1)),
-      });
-    });
+    if (review.ratingValue < 1 || review.ratingValue > 5) {
+      throw ArgumentError('Rating must be between 1 and 5.');
+    }
+    if (review.comment.length > 1000) {
+      throw ArgumentError('Comment is too long.');
+    }
+    await _db.collection('reviews').add(review.toMap());
   }
 }

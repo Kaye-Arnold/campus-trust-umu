@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import 'provider_list_screen.dart';
+import '../services/install_service.dart';
+import '../widgets/install_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +17,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _searchCtrl = TextEditingController();
+  bool _showInstallCard = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Give the first meaningful visit a moment to orient before offering install.
+    Future.delayed(const Duration(milliseconds: 1400), () {
+      if (mounted && InstallService.shouldShow) {
+        setState(() => _showInstallCard = true);
+      }
+    });
+  }
 
   static const _categories = [
     _Cat('Electricians', Icons.bolt,        'electrician'),
@@ -208,6 +222,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (_showInstallCard) ...[
+                      InstallCard(
+                        canPrompt: InstallService.canPrompt,
+                        instructions: InstallService.instructions,
+                        onInstall: () async {
+                          final installed = await InstallService.prompt();
+                          if (mounted && installed) {
+                            setState(() => _showInstallCard = false);
+                          }
+                        },
+                        onDismiss: () => setState(() {
+                          _showInstallCard = false;
+                          InstallService.dismiss();
+                        }),
+                      ),
+                      const SizedBox(height: 18),
+                    ],
                     // Search bar
                     TextField(
                       controller: _searchCtrl,

@@ -38,8 +38,22 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
     try {
       final list = await _fs.getReviews(_provider.id);
       if (mounted) {
+        final average = list.isEmpty
+            ? _provider.ratingAverage
+            : list.map((review) => review.ratingValue).reduce((a, b) => a + b) / list.length;
         setState(() {
           _reviews = list;
+          _provider = ProviderModel(
+            id: _provider.id,
+            name: _provider.name,
+            category: _provider.category,
+            phone: _provider.phone,
+            whatsapp: _provider.whatsapp,
+            bio: _provider.bio,
+            ratingAverage: double.parse(average.toStringAsFixed(1)),
+            ratingCount: list.isEmpty ? _provider.ratingCount : list.length,
+            photoUrl: _provider.photoUrl,
+          );
         });
       }
     } catch (e) {

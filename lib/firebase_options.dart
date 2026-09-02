@@ -16,11 +16,10 @@ class DefaultFirebaseOptions {
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
+      case TargetPlatform.iOS:
+        return ios;
       default:
-        throw UnsupportedError(
-          'CampusTrust is Android-only. '
-          'Run flutterfire configure to regenerate this file.',
-        );
+        return web;
     }
   }
 
@@ -32,4 +31,24 @@ class DefaultFirebaseOptions {
     storageBucket: 'campustrust-umu-v3-1fb07.firebasestorage.app',
   );
 
+  // Regenerate with FlutterFire for a production iOS bundle ID if iOS is enabled.
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyD4dtrKGswRVKQckU7HNZOxKwQv-rcw0kM',
+    appId: '1:510285306261:android:53a97241950769ef3b7e9c',
+    messagingSenderId: '510285306261',
+    projectId: 'campustrust-umu-v3-1fb07',
+    storageBucket: 'campustrust-umu-v3-1fb07.firebasestorage.app',
+  );
+
+  // Firebase client configuration is not a secret; Firestore rules remain the
+  // security boundary. Replace with the web app's generated appId when adding
+  // a registered Firebase web app.
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyD4dtrKGswRVKQckU7HNZOxKwQv-rcw0kM',
+    appId: '1:510285306261:web:53a97241950769ef3b7e9c',
+    messagingSenderId: '510285306261',
+    projectId: 'campustrust-umu-v3-1fb07',
+    authDomain: 'campustrust-umu-v3-1fb07.firebaseapp.com',
+    storageBucket: 'campustrust-umu-v3-1fb07.firebasestorage.app',
+  );
 }

@@ -226,6 +226,7 @@ if (user == null) {
                       controller: _commentCtrl,
                       minLines: 4,
                       maxLines: 6,
+                      maxLength: 1000,
                       textCapitalization: TextCapitalization.sentences,
                       style: GoogleFonts.poppins(
                         color: AppColors.textPrimary,
