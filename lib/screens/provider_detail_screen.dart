@@ -24,6 +24,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   late ProviderModel _provider;
   List<ReviewModel> _reviews = [];
   bool _loadingReviews = true;
+  bool _reviewsError = false;
   bool _showAll = false;
 
   @override
@@ -34,8 +35,11 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   }
 
   Future<void> _loadReviews() async {
-    setState(() => _loadingReviews = true);
-    
+    setState(() {
+      _loadingReviews = true;
+      _reviewsError = false;
+    });
+
     try {
       final list = await _fs.getReviews(_provider.id);
       if (mounted) {
@@ -57,9 +61,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           );
         });
       }
-    } catch (e) {
-      // If it crashes, it will print exactly why to your debug console
-      print('🔥 ERROR LOADING REVIEWS: $e'); 
+    } catch (_) {
+      if (mounted) setState(() => _reviewsError = true);
     } finally {
       // This ALWAYS runs, guaranteeing the spinner stops
       if (mounted) {
@@ -417,6 +420,14 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                     const Center(
                       child: CircularProgressIndicator(
                           color: AppColors.primary),
+                    )
+                  else if (_reviewsError)
+                    Center(
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        const Text('Reviews could not be loaded.'),
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(onPressed: _loadReviews, icon: const Icon(Icons.refresh), label: const Text('Try again')),
+                      ]),
                     )
                   else if (_reviews.isEmpty)
                     Padding(

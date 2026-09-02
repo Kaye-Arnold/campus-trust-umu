@@ -70,7 +70,6 @@ class _ReviewBottomSheetState extends State<ReviewBottomSheet> {
     }
     final user = context.read<AuthProvider>().user;
 if (user == null) {
-  print('🚨 SILENT FAILURE CAUGHT: AuthProvider user is null!');
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(
       content: Text('Finalizing sign-in... Please tap Submit again.'),

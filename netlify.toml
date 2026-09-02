@@ -8,6 +8,9 @@
 [[plugins]]
   package = "netlify-plugin-flutter"
 
+  [plugins.inputs]
+    channel = "stable"
+
 # Flutter client-side routes must resolve to the app shell.
 [[redirects]]
   from = "/*"
