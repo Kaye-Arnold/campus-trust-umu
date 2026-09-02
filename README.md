@@ -1,6 +1,6 @@
 # CampusTrust
 
-CampusTrust helps students and staff at Uganda Martyrs University, Nkozi find and contact trusted local service providers such as electricians, plumbers, boda riders and peer tutors. Providers are curated; community reviews provide the trust signal.
+CampusTrust helps students and staff at Uganda Martyrs University, Nkozi find and contact local service providers such as electricians, plumbers, boda riders and peer tutors. Providers are curated; community reviews provide useful context.
 
 ## Product map
 

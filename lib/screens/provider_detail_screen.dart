@@ -114,6 +114,22 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
     );
   }
 
+  Future<void> _reportProvider() async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: 'campustrust@umu.ac.ug',
+      queryParameters: {
+        'subject': 'CampusTrust listing report: ${_provider.name}',
+        'body': 'Please describe the issue with this listing or its reviews.\n\nProvider ID: ${_provider.id}',
+      },
+    );
+    if (!await launchUrl(uri) && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open your email app.')),
+      );
+    }
+  }
+
   void _openReviewSheet() {
     showModalBottomSheet(
       context: context,
@@ -150,9 +166,10 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share_outlined,
+            tooltip: 'Report this listing',
+            icon: const Icon(Icons.flag_outlined,
                 color: AppColors.textPrimary),
-            onPressed: () {},
+            onPressed: _reportProvider,
           ),
         ],
       ),

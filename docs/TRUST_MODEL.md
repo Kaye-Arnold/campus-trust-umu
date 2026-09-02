@@ -18,7 +18,7 @@ Users should not include phone numbers, private information, accusations they ca
 
 ## Reporting and response
 
-Until an in-app report workflow is added, users should contact the directory operator through the project’s designated support channel to report:
+The provider profile includes a Report this listing action that opens an email to `campustrust@umu.ac.ug`. Before launch, the directory owner must confirm that this mailbox exists, is monitored, and has an accountable response owner. Users can report:
 
 - unsafe or fraudulent providers
 - wrong phone numbers
